@@ -73,7 +73,7 @@ namespace StructureMap.Graph
         private readonly ProfileManager _profileManager = new ProfileManager();
         private readonly List<Registry> _registries = new List<Registry>();
         private readonly List<AssemblyScanner> _scanners = new List<AssemblyScanner>();
-        private readonly WeakReference<TypePool> _types;
+        private WeakReference<TypePool> _types;
         private GraphLog _log = new GraphLog();
         private bool _sealed;
 
@@ -84,7 +84,20 @@ namespace StructureMap.Graph
             _types = new WeakReference<TypePool>(() => new TypePool(this));
         }
 
-        public TypePool Types { get { return _types.Value; } }
+        public TypePool Types
+        {
+            get
+            {
+                var typesValue = _types.Value;
+                if (typesValue == null)
+                {
+                    _types = new WeakReference<TypePool>(() => new TypePool(this));
+                    typesValue = _types.Value;
+                }
+
+                return typesValue;
+            }
+        }
 
         public List<Registry> Registries { get { return _registries; } }
 
